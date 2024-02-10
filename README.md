@@ -14,3 +14,6 @@ export PATH="$PATH:$CCWC_DIR"
 
 ### Count the number of bytes in a file:
 `ccwc -c path_to_file`
+
+### Count the number of lines in a file:
+`ccwc -l path_to_file`
