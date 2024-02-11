@@ -4,9 +4,10 @@ Coding Challenge 1: Build Your Own WC Tool
 ## Usage:
 
 ### Make ccwc visible to the current shell
+
 ```
 CCWC_DIR="path_to_dir_containing_ccwc"
-export PATH="$PATH:$CCWC_DIR"
+source $CCWC_DIR/init
 ```
 
 ### Get a list of available options
@@ -17,3 +18,6 @@ export PATH="$PATH:$CCWC_DIR"
 
 ### Count the number of lines in a file:
 `ccwc -l path_to_file`
+
+### Count the number of words in a file:
+`ccwc -w path_to_file`

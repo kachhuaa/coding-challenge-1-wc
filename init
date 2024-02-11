@@ -1,1 +1,1 @@
-export PATH="$PATH:$HOME/Desktop/projects/coding_challenges/coding-challenge-1-wc"
+export PATH="$PATH:$CCWC_DIR"

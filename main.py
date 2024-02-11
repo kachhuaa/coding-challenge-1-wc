@@ -9,12 +9,14 @@ class CountType(Enum):
     WORDS = auto()
     LINES = auto()
 
+
 class WordCounter:
     @staticmethod
     def _count_bytes(file_path):
         with open(file_path, mode="rb") as f:
             return len(f.read())
-        
+    
+    
     def _count_lines(file_path):
         with open(file_path, mode="r") as f:
             text = f.read()
@@ -22,11 +24,29 @@ class WordCounter:
                 return 0
             return text.count("\n")
     
+
+    def _count_words(file_path):
+        count = 0
+        with open(file_path, mode="r") as f:
+            text = f.read()
+            ix = 0
+            while ix < len(text):
+                if text[ix].isspace():
+                    ix += 1
+                    continue
+                count += 1
+                while ix < len(text) and not text[ix].isspace():
+                    ix += 1
+                    
+        return count
+
+    
     @staticmethod
     def count(file_path, count_types):
         type_to_func_map = {
             CountType.BYTES: WordCounter._count_bytes,
             CountType.LINES: WordCounter._count_lines,
+            CountType.WORDS: WordCounter._count_words,
         }
 
         result = []
@@ -41,6 +61,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="ccwc", description="ccwc - print newline, word, and byte counts for each file")
     parser.add_argument("-c", "--bytes", dest="count_types", action="append_const", const=CountType.BYTES, help="print the  byte counts")
     parser.add_argument("-l", "--lines", dest="count_types", action="append_const", const=CountType.LINES, help="print the newline counts")
+    parser.add_argument("-w", "--words", dest="count_types", action="append_const", const=CountType.WORDS, help="print the word counts")
     parser.add_argument("file_path", metavar="FILE", nargs=1, help="path to file")
     args = parser.parse_args()
     
