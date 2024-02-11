@@ -21,3 +21,6 @@ source $CCWC_DIR/init
 
 ### Count the number of words in a file:
 `ccwc -w path_to_file`
+
+### Count the number of characters in a file:
+`ccwc -m path_to_file`

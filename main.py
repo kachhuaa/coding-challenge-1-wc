@@ -1,4 +1,5 @@
 import argparse
+import locale
 
 from enum import Enum, auto
 
@@ -37,8 +38,12 @@ class WordCounter:
                 count += 1
                 while ix < len(text) and not text[ix].isspace():
                     ix += 1
-                    
-        return count
+            return count
+    
+
+    def _count_characters(file_path):
+        with open(file_path, mode="r", newline="") as f:
+            return len(f.read())
 
     
     @staticmethod
@@ -47,6 +52,7 @@ class WordCounter:
             CountType.BYTES: WordCounter._count_bytes,
             CountType.LINES: WordCounter._count_lines,
             CountType.WORDS: WordCounter._count_words,
+            CountType.CHARACTERS: WordCounter._count_characters,
         }
 
         result = []
@@ -62,9 +68,10 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--bytes", dest="count_types", action="append_const", const=CountType.BYTES, help="print the  byte counts")
     parser.add_argument("-l", "--lines", dest="count_types", action="append_const", const=CountType.LINES, help="print the newline counts")
     parser.add_argument("-w", "--words", dest="count_types", action="append_const", const=CountType.WORDS, help="print the word counts")
+    parser.add_argument("-m", "--chars", dest="count_types", action="append_const", const=CountType.CHARACTERS, help="print the character counts")
     parser.add_argument("file_path", metavar="FILE", nargs=1, help="path to file")
     args = parser.parse_args()
-    
+
     try:
         print(WordCounter.count(args.file_path[0], args.count_types))
     except FileNotFoundError:
