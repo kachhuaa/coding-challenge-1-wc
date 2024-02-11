@@ -24,3 +24,6 @@ source $CCWC_DIR/init
 
 ### Count the number of characters in a file:
 `ccwc -m path_to_file`
+
+### Display all counts
+`ccwc path_to_file`

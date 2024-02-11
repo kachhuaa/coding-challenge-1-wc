@@ -1,5 +1,5 @@
 import argparse
-import locale
+import sys
 
 from enum import Enum, auto
 
@@ -55,12 +55,14 @@ class WordCounter:
             CountType.CHARACTERS: WordCounter._count_characters,
         }
 
-        result = []
-        for typ in count_types:
-            result.append(str(type_to_func_map[typ](file_path)))
+        if not count_types:
+            count_types = [CountType.LINES, CountType.WORDS, CountType.BYTES]
 
+        result = [str(type_to_func_map[typ](file_path)) for typ in count_types]
         result.append(file_path)
-        return " ".join(result)
+
+        field_width = max([len(v) for v in result]) + 1
+        return "".join([f"{v:>{field_width}}" for v in result])
                  
 
 if __name__ == "__main__":
@@ -69,10 +71,17 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--lines", dest="count_types", action="append_const", const=CountType.LINES, help="print the newline counts")
     parser.add_argument("-w", "--words", dest="count_types", action="append_const", const=CountType.WORDS, help="print the word counts")
     parser.add_argument("-m", "--chars", dest="count_types", action="append_const", const=CountType.CHARACTERS, help="print the character counts")
-    parser.add_argument("file_path", metavar="FILE", nargs=1, help="path to file")
+    parser.add_argument("file_path", metavar="FILE", nargs="?", help="path to file")
     args = parser.parse_args()
 
-    try:
-        print(WordCounter.count(args.file_path[0], args.count_types))
-    except FileNotFoundError:
-        print(f"ccwc: {args.file_path[0]}: No such file or directory")
+    file_path = args.file_path
+
+    if file_path == "":
+        print("ccwc: invalid zero-length file name")
+    else:
+        try:
+            print(WordCounter.count(file_path, args.count_types))
+        except FileNotFoundError:
+            print(f"ccwc: '{file_path}': No such file or directory")
+        except Exception as e:
+            print(e)
