@@ -27,3 +27,6 @@ source $CCWC_DIR/init
 
 ### Display all counts
 `ccwc path_to_file`
+
+### Read from standard input
+`cat path_to_file | ccwc [-l] [-c] [-m] [-b]`

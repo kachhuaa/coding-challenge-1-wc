@@ -1,4 +1,5 @@
 import argparse
+import io
 import sys
 
 from enum import Enum, auto
@@ -11,58 +12,92 @@ class CountType(Enum):
     LINES = auto()
 
 
-class WordCounter:
+class Counter:
     @staticmethod
-    def _count_bytes(file_path):
-        with open(file_path, mode="rb") as f:
-            return len(f.read())
-    
-    
-    def _count_lines(file_path):
-        with open(file_path, mode="r") as f:
-            text = f.read()
-            if len(text) == 0:
-                return 0
-            return text.count("\n")
+    def _count_bytes(data):
+        return len(data)
     
 
-    def _count_words(file_path):
+    @staticmethod
+    def _count_lines(text):
+        if len(text) == 0:
+            return 0
+        return text.count("\n")
+    
+
+    @staticmethod
+    def _count_words(text):
         count = 0
-        with open(file_path, mode="r") as f:
-            text = f.read()
-            ix = 0
-            while ix < len(text):
-                if text[ix].isspace():
-                    ix += 1
-                    continue
-                count += 1
-                while ix < len(text) and not text[ix].isspace():
-                    ix += 1
-            return count
+        ix = 0
+        while ix < len(text):
+            if text[ix].isspace():
+                ix += 1
+                continue
+            count += 1
+            while ix < len(text) and not text[ix].isspace():
+                ix += 1
+        return count
     
+    
+    @staticmethod
+    def _count_characters(text):
+        return len(text)
+        
+    
+    @staticmethod
+    def _extract_text(file_path, stdin_text, count_type):
+        if file_path is None:
+            if count_type == CountType.BYTES:
+                with io.BytesIO(stdin_text) as f:
+                    return f.read()
+            else:
+                with io.StringIO(stdin_text.decode("utf-8")) as f:
+                    return f.read()
+        else:
+            if count_type == CountType.BYTES:
+                with open(file_path, mode="rb") as f:
+                    return f.read()
+            else:
+                with open(file_path, mode="r", newline="") as f:
+                    return f.read()
+                
 
-    def _count_characters(file_path):
-        with open(file_path, mode="r", newline="") as f:
-            return len(f.read())
+    @staticmethod
+    def _count(text, count_type):
+        type_to_func_map = {
+            CountType.BYTES: Counter._count_bytes,
+            CountType.LINES: Counter._count_lines,
+            CountType.WORDS: Counter._count_words,
+            CountType.CHARACTERS: Counter._count_characters,
+        }
+
+        return type_to_func_map[count_type](text)
 
     
     @staticmethod
     def count(file_path, count_types):
-        type_to_func_map = {
-            CountType.BYTES: WordCounter._count_bytes,
-            CountType.LINES: WordCounter._count_lines,
-            CountType.WORDS: WordCounter._count_words,
-            CountType.CHARACTERS: WordCounter._count_characters,
-        }
+        # open()
+        # count()
+        # display()
+
+        if file_path is None:
+            stdin_text = sys.stdin.buffer.read()
+        else:
+            stdin_text = None
 
         if not count_types:
             count_types = [CountType.LINES, CountType.WORDS, CountType.BYTES]
 
-        result = [str(type_to_func_map[typ](file_path)) for typ in count_types]
-        result.append(file_path)
+        results = []
+        for typ in count_types:
+            text = Counter._extract_text(file_path, stdin_text, typ)
+            results.append(str(Counter._count(text, typ)))
 
-        field_width = max([len(v) for v in result]) + 1
-        return "".join([f"{v:>{field_width}}" for v in result])
+        if file_path is not None:
+            results.append(file_path)
+
+        field_width = max([len(v) for v in results]) + 1
+        return "".join([f"{v:>{field_width}}" for v in results])
                  
 
 if __name__ == "__main__":
@@ -78,9 +113,9 @@ if __name__ == "__main__":
 
     if file_path == "":
         print("ccwc: invalid zero-length file name")
-    else:
+    else: 
         try:
-            print(WordCounter.count(file_path, args.count_types))
+            print(Counter.count(file_path, args.count_types))
         except FileNotFoundError:
             print(f"ccwc: '{file_path}': No such file or directory")
         except Exception as e:
