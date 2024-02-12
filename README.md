@@ -29,4 +29,4 @@ source $CCWC_DIR/init
 `ccwc path_to_file`
 
 ### Read from standard input
-`cat path_to_file | ccwc [-l] [-c] [-m] [-b]`
+`cat path_to_file | ccwc [-l] [-c] [-m] [-w]`
